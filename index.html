@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>InboxFixer48</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="max-w-3xl mx-auto p-6">
+    <h1 class="text-4xl font-bold text-blue-700 mb-2">InboxFixer48</h1>
+    <p class="text-lg text-gray-700 mb-6">Small Tools. Big Words.<br>Fix your emails before they embarrass you.</p>
+    <form id="emailForm" class="bg-white shadow-md rounded p-6 space-y-4">
+      <div>
+        <label class="block font-semibold mb-1">Paste Your Email</label>
+        <textarea id="emailText" rows="8" class="w-full border border-gray-300 p-3 rounded" placeholder="Dear John, I hope this email finds you well..."></textarea>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-semibold mb-1">Tone</label>
+          <select id="tone" class="w-full border border-gray-300 p-2 rounded">
+            <option value="Professional">Professional</option>
+            <option value="Friendly">Friendly</option>
+            <option value="Direct">Direct</option>
+            <option value="Persuasive">Persuasive</option>
+            <option value="Empathetic">Empathetic</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Purpose</label>
+          <select id="purpose" class="w-full border border-gray-300 p-2 rounded">
+            <option value="Introduction">Introduction</option>
+            <option value="Follow-up">Follow-up</option>
+            <option value="Sales">Sales</option>
+            <option value="Apology">Apology</option>
+            <option value="Resignation">Resignation</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="bg-blue-600 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700 transition">Fix My Email</button>
+    </form>
+    <div id="resultSection" class="mt-8 hidden">
+      <h2 class="text-2xl font-bold text-green-600 mb-2">Rewritten Email</h2>
+      <div id="rewrittenEmail" class="bg-white p-4 border border-gray-200 rounded text-gray-800 whitespace-pre-wrap"></div>
+    </div>
+  </div>
+  <script>
+    const form = document.getElementById('emailForm');
+    const resultSection = document.getElementById('resultSection');
+    const rewrittenEmail = document.getElementById('rewrittenEmail');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const emailText = document.getElementById('emailText').value;
+      const tone = document.getElementById('tone').value;
+      const purpose = document.getElementById('purpose').value;
+      const response = await fetch('/api/rewrite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emailText, tone, purpose })
+      });
+      const data = await response.json();
+      rewrittenEmail.innerText = data.rewrittenEmail;
+      resultSection.classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
