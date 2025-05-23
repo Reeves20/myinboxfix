@@ -15,32 +15,31 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Missing input fields' }, { status: 400 });
     }
 
-    const prompt = `
-You are a professional writing assistant. Rewrite the following email to improve clarity, tone, and effectiveness.
-Use a ${tone} tone. The purpose of the email is: ${purpose}.
-Original Email:
-${emailText}
-Rewritten Email:
-`;
+    const messages = [
+      {
+        role: "system",
+        content: `You are a helpful assistant that rewrites emails to improve clarity, tone, and effectiveness. Use a ${tone} tone. The purpose of the email is: ${purpose}.`,
+      },
+      {
+        role: "user",
+        content: emailText,
+      }
+    ];
 
-    const response = await openai.createCompletion({
-      model: "text-davinci-003",
-      prompt: prompt,
-      max_tokens: 300,
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: messages,
       temperature: 0.7,
+      max_tokens: 300,
     });
 
-    if (!response.data || !response.data.choices || !response.data.choices.length) {
-      return NextResponse.json({ error: 'No response from OpenAI' }, { status: 502 });
-    }
-
-    const rewrittenEmail = response.data.choices[0].text.trim();
+    const rewrittenEmail = response.data.choices[0].message.content.trim();
     return NextResponse.json({ rewrittenEmail });
   } catch (error) {
     console.error('Rewrite API Error:', error?.response?.data || error.message || error);
     return NextResponse.json(
       {
-        error: 'Something went wrong while processing your request. Please try again or check your API key and input content.',
+        error: 'Something went wrong. Check your API key and model access.',
       },
       { status: 500 }
     );
